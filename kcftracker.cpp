@@ -57,11 +57,9 @@ int main(int argc, char **argv)
     bool ok = video.read(frame);
     
     for(int i=0;i<600;i++){video.read(frame);}
-    // Define initial boundibg box
-    Rect2d bbox(287, 23, 86, 320);
     
-    // Uncomment the line below to select a different bounding box
-    bbox = selectROI(frame, false);
+    // Select a bounding box
+    Rect2d bbox = selectROI(frame, false);
 
     // Display bounding box.
     rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
