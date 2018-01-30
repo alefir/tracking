@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     Mat frame;
     bool ok = video.read(frame);
     
+    // Skip 600 frames into the video, because I'm too lazy to crop out the beginning of the video
     for(int i=0;i<600;i++){video.read(frame);}
     
     // Select a bounding box
@@ -64,8 +65,9 @@ int main(int argc, char **argv)
     // Display bounding box.
     rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
     tracker->init(frame, bbox);
-    Mat thresh;
-    destroyAllWindows();
+
+    destroyAllWindows(); // Close bounding box selection window
+    
     while(video.read(frame))
     {     
     	// Equalize Histogram (maximize image contrast)
@@ -73,7 +75,7 @@ int main(int argc, char **argv)
         ok = tracker->update(frame, bbox);
         float fps = getTickFrequency() / ((double)getTickCount() - timer);
         int xPos = 0, yPos = 0;
-        if (ok)
+        if (ok) // If the tracking algorithm is still running without issue
         {
             // Tracking success : Draw the tracked object
             rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
@@ -81,20 +83,23 @@ int main(int argc, char **argv)
 	    xPos = (bbox.x+(bbox.width/2)) - frame.size().width/2;
 	    yPos = (bbox.y+(bbox.height/2)) - frame.size().height/2;
         }
-        else
+        else // If the tracking algorithm has failed, revert to binary threshold and blob sorting
         {
-            // Tracking failure detected.
+            // Tracking failure detected
             putText(frame, "Tracking failure detected - Revert to Threshold", Point(100,140), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255),2);
             tracker->init(frame, bbox);
 
-            Mat frame_thresh;
-            inRange(frame, Scalar(240,240,240), Scalar(255,255,255), frame_thresh);
+            Mat frame_thresh; // Mat to hold thresholding outputs
+            
+	    // Binary threshold for BGR values above 240/240/240
+	    inRange(frame, Scalar(240,240,240), Scalar(255,255,255), frame_thresh);
             blur(frame_thresh, frame_thresh, Size(5,5));
             Rect bounding_rect;
             vector<vector<Point>> contours;
             vector<Vec4i> hierarchy;
             findContours(frame_thresh, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
 
+	    // Find the biggest threshold blob
 	    int largest_area = 0, largest_contour_index = 0;
             for(int i = 0; i < contours.size(); i++){
             	    double a = contourArea(contours[i], false);
@@ -104,6 +109,8 @@ int main(int argc, char **argv)
             	    	    bounding_rect = boundingRect(contours[i]);
             	    }
             }
+
+	    // Draw bounding rectangle around biggest threshold blob
             xPos = (bounding_rect.x+(bounding_rect.width/2)) - frame.size().width/2;
             yPos = (bounding_rect.y+(bounding_rect.height/2)) - frame.size().height/2;
             rectangle(frame, bounding_rect, Scalar(255,0,0), 2, 1);
@@ -123,7 +130,7 @@ int main(int argc, char **argv)
 	
 	namedWindow("Tracking", CV_WINDOW_FREERATIO);
 	imshow("Tracking", frame);
-        // Exit if ESC pressed.
+        // Exit if ESC pressed
         int k = waitKey(1);
         if(k == 27)
         {
