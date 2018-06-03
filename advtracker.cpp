@@ -76,7 +76,7 @@ int main(int argc, char **argv){
 
 		//display bounding coordinates
 		int xPos = (bounds.x+(bounds.width/2)) - frame.size().width/2;
-		int yPos = (bounds.y+(bounds.height/2)) - frame.size().height/2;
+		int yPos = ((bounds.y+(bounds.height/2)) - frame.size().height/2) * -1;
 		putText(frame, "X : " + SSTR(xPos), Point(0, 20), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
 		putText(frame, "Y : " + SSTR(yPos), Point(0, 40), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
 
