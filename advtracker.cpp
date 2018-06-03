@@ -57,10 +57,10 @@ int main(int argc, char **argv){
 	Rect2d bounds = findBounds(frame);
 	tracker->init(frame, bounds);
 
-	while (video.read(frame)){
+	//calculate frames per second
+	double fps = video.get(CV_CAP_PROP_FPS);
 
-		//calculate frames per second
-		double fps = video.get(CV_CAP_PROP_FPS);
+	while (video.read(frame)){
 
 		ok = tracker->update(frame, bounds);
 		if (ok){
