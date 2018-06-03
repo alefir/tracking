@@ -58,6 +58,10 @@ int main(int argc, char **argv){
 	tracker->init(frame, bounds);
 
 	while (video.read(frame)){
+
+		//calculate frames per second
+		double fps = video.get(CV_CAP_PROP_FPS);
+
 		ok = tracker->update(frame, bounds);
 		if (ok){
 			rectangle(frame, bounds, Scalar(255,0,0), 2, 1);
@@ -67,14 +71,26 @@ int main(int argc, char **argv){
 			tracker = TrackerKCF::create();
 			tracker->init(frame, bounds);
 			rectangle(frame, bounds, Scalar(255,0,0), 2, 1);
-			putText(frame, "KCF TRACKING FAILURE", Point(0,20), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
+			putText(frame, "KCF TRACKING FAILURE", Point(0,60), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
 		}
+
+		//display bounding coordinates
+		int xPos = (bounds.x+(bounds.width/2)) - frame.size().width/2;
+		int yPos = (bounds.y+(bounds.height/2)) - frame.size().height/2;
+		putText(frame, "X : " + SSTR(xPos), Point(0, 20), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
+		putText(frame, "Y : " + SSTR(yPos), Point(0, 40), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
+
+		//display center line
+		line(frame, Point(bounds.x+(bounds.width/2), bounds.y+(bounds.height/2)), Point(frame.size().width/2, frame.size().height/2), Scalar(0,255,0), 2, LINE_8, 0);
+
+		//display FPS counter
+		putText(frame, "FPS : " + SSTR(int(fps)), Point(0,frame.size().height-20), FONT_HERSHEY_DUPLEX, 0.75, Scalar(0,0,255), 2);
 
 		namedWindow("Tracking", CV_WINDOW_AUTOSIZE);
 		imshow("Tracking", frame);
 		
 		//exit if ESC is pressed
-		int k = waitKey(1);
+		int k = waitKey(1000/fps);
 		if (k == 27){ break; }
 	}
 }
