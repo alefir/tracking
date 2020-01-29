@@ -1,0 +1,11 @@
+Unnamed Thermal Hotspot Tracking Program
+
+All versions released before 2020-01-01 are tested and built on an unknown
+release of OpenCV2, presumably somewhere in the 2.4 range.
+
+All versions released after 2020-01-01 are tested and build on OpenCV
+version 4.2.0.
+
+This is free software. You may copy, distribute, and modify it under the
+terms of the License contained in the file LICENSE. This license is
+the same as the MIT/X Consortion License.
